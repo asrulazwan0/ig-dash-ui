@@ -2,7 +2,7 @@
 React + TypeScript + Vite frontend for individual accounts and private logs.
 
 ## Current state
-A development landing page checks the backend health endpoint and displays connection status. Authentication screens and the log dashboard are not implemented yet.
+Registration, sign-in, restored cookie sessions, and private logs are implemented. The dashboard supports submission, level filters, pagination, and recoverable failures.
 
 ## Local development
 Use Node.js 22.13 or newer within Node 22, or Node 24+ (Node 22 is specified in .nvmrc).
@@ -22,9 +22,11 @@ The build includes TypeScript checking. npm run preview previews static assets o
 
 
 ## Full Docker development
-This repo includes a Dockerfile.dev for source-mounted development. With both repos checked out as siblings under `ig/`, the local parent compose.yaml runs the API, frontend, and PostgreSQL together:
+Clone both repos as siblings. Configure ig-dash-core/.env, then follow the shared setup in [IGDash Core](https://github.com/asrulazwan0/ig-dash-core#full-docker-development). Its tracked compose.workspace.yaml runs PostgreSQL, API, and this frontend with hot reload.
+
+Browser checks use real API/database services:
 ```sh
-cd ..
-docker compose up --build -d --wait
+cd ../ig-dash-core
+docker compose -f compose.workspace.yaml --profile tools run --build --rm browser-tests
 ```
-Configure ig-dash-core/.env first. See ../README.md for hot reload, logs, and switching back to native apps. Parent orchestration files are local and are not tracked in either repo yet.
+The browser image includes Chromium dependencies. Checks create test accounts and logs; CI uses a disposable stack. For an already running app with locally installed Playwright browsers, run npm run test:e2e (BASE_URL defaults to http://localhost:5173).

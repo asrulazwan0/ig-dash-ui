@@ -14,3 +14,35 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ig-dash-ui
+      - uses: actions/checkout@v4
+        with:
+          repository: asrulazwan0/ig-dash-core
+          path: ig-dash-core
+      - name: Configure disposable database
+        working-directory: ig-dash-core
+        run: cp .env.example .env
+      - name: Apply migrations
+        working-directory: ig-dash-core
+        run: |
+          docker compose -f compose.workspace.yaml up -d --wait postgres
+          docker compose -f compose.workspace.yaml --profile tools run --build --rm migrate
+      - name: Start application
+        working-directory: ig-dash-core
+        run: docker compose -f compose.workspace.yaml up --build -d --wait postgres api ui
+      - name: Verify browser workflows
+        working-directory: ig-dash-core
+        run: docker compose -f compose.workspace.yaml --profile tools run --build --rm browser-tests
+      - name: Container diagnostics
+        if: failure()
+        working-directory: ig-dash-core
+        run: docker compose -f compose.workspace.yaml logs --tail 100 api ui
+      - name: Remove disposable stack
+        if: always()
+        working-directory: ig-dash-core
+        run: docker compose -f compose.workspace.yaml --profile tools down -v
