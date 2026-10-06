@@ -20,11 +20,6 @@ npm run build
 ```
 The build includes TypeScript checking. npm run preview previews static assets only; configure a same-origin /api reverse proxy for a deployed build. The development proxy is not included in production assets.
 
-## Documentation
-- [MVP scope](docs/mvp.md)
-- [Backend architecture and proposed API](https://github.com/asrulazwan0/ig-dash-core/blob/main/docs/api-design.md) (available on GitHub after publishing; locally use ../ig-dash-core/docs/api-design.md).
-
-Use cookie sessions with CSRF protection when authentication is implemented. Do not store tokens in localStorage or expose server credentials via VITE_ variables.
 
 ## Full Docker development
 This repo includes a Dockerfile.dev for source-mounted development. With both repos checked out as siblings under `ig/`, the local parent compose.yaml runs the API, frontend, and PostgreSQL together:
