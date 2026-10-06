@@ -25,3 +25,11 @@ The build includes TypeScript checking. npm run preview previews static assets o
 - [Backend architecture and proposed API](https://github.com/asrulazwan0/ig-dash-core/blob/main/docs/api-design.md) (available on GitHub after publishing; locally use ../ig-dash-core/docs/api-design.md).
 
 Use cookie sessions with CSRF protection when authentication is implemented. Do not store tokens in localStorage or expose server credentials via VITE_ variables.
+
+## Full Docker development
+This repo includes a Dockerfile.dev for source-mounted development. With both repos checked out as siblings under `ig/`, the local parent compose.yaml runs the API, frontend, and PostgreSQL together:
+```sh
+cd ..
+docker compose up --build -d --wait
+```
+Configure ig-dash-core/.env first. See ../README.md for hot reload, logs, and switching back to native apps. Parent orchestration files are local and are not tracked in either repo yet.
