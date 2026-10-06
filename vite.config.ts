@@ -2,7 +2,7 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  return { plugins: [react()], server: { port: 5173, strictPort: true, proxy: {
+  return { plugins: [react()], server: { port: 5173, strictPort: true, watch: { usePolling: env.VITE_USE_POLLING === 'true' }, proxy: {
     '/api': { target: env.API_PROXY_TARGET || 'http://localhost:5193', changeOrigin: true },
   } } }
 })
