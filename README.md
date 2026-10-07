@@ -2,7 +2,7 @@
 React + TypeScript + Vite frontend for individual accounts and private logs.
 
 ## Current state
-Registration, sign-in, restored cookie sessions, and private logs are implemented. The dashboard supports creation, editing, confirmed deletion, private tags, message search, date/level/tag filters, pagination, activity summaries, CSV export, and recoverable failures.
+Email-verified registration, recovery, account settings, owned session management, sign-in, restored cookie sessions, and private logs are implemented. The dashboard supports creation, editing, confirmed deletion, private tags, message search, date/level/tag filters, pagination, activity summaries, CSV export, and recoverable failures.
 
 ## Local development
 Use Node.js 22.13 or newer within Node 22, or Node 24+ (Node 22 is specified in .nvmrc).
@@ -35,3 +35,10 @@ The browser image includes Chromium dependencies. Checks create test accounts an
 Run the explicit development seeder in the sibling [IGDash Core](https://github.com/asrulazwan0/ig-dash-core#demo-data), then sign in with either demo account and your configured password.
 
 Date filters include both selected dates in your local timezone. Summary counts and recent entries match all applied filters. The daily chart shows up to 30 UTC days ending at the selected end date (or today); expand daily counts for the accessible table. CSV export includes every matching entry, across all pages. Spreadsheet formula-like text is prefixed with an apostrophe for safe viewing.
+
+## Review account flows
+The sibling Core Docker setup provides a local inbox at http://localhost:8025. Register, open the verification email and confirm its link before signing in. Forgot password requests a recovery email. Account settings includes password changes, confirmed email changes and session revocation.
+
+The seeder provides two verified users with 84 logs each, plus `demo.unverified@example.test` with 12 logs that become accessible after email verification. All use your configured demo password. Links expire after one hour, and confirmation/reset actions require a button press. Tokens are removed from the URL before API calls and are never saved in browser storage.
+
+Browser checks need Mailpit as well as the API/database. For native checks, MAILPIT_URL defaults to http://localhost:8025; the Docker runner uses the mailpit service. CI verifies the full seed/rerun, captured-email, account, session and log workflows on disposable data.

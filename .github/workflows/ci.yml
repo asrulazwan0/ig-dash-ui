@@ -28,6 +28,7 @@ jobs:
         working-directory: ig-dash-core
         run: |
           cp .env.example .env
+          printf '\nIGDASH_PUBLIC_ORIGIN=http://ui:5173\n' >> .env
           printf '\nIGDASH_DEMO_PASSWORD=Demo-123!%s\n' "$(openssl rand -hex 16)" >> .env
       - name: Apply migrations
         working-directory: ig-dash-core
@@ -42,7 +43,10 @@ jobs:
           python3 -c "assert 'Demo seed complete: 0 users and 0 logs created.' in open('/tmp/igdash-seed-rerun.log').read()"
       - name: Start application
         working-directory: ig-dash-core
-        run: docker compose -f compose.workspace.yaml up --build -d --wait postgres api ui
+        run: |
+          # The API integration suite checks throttling; browser journeys share one test IP.
+          printf 'services:\n  api:\n    environment:\n      RateLimits__AccountsPerMinute: "1000"\n' > compose.browser.yaml
+          docker compose -f compose.workspace.yaml -f compose.browser.yaml up --build -d --wait postgres api ui
       - name: Verify browser workflows
         working-directory: ig-dash-core
         run: docker compose -f compose.workspace.yaml --profile tools run --build --rm browser-tests

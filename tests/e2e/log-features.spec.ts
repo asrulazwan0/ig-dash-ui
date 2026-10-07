@@ -1,15 +1,10 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
 test.use({ viewport: { width: 375, height: 900 } })
-async function register(page: Page) {
+import { registerVerified } from './account-helpers'
+async function register(page: Parameters<typeof registerVerified>[0]) {
   await page.goto('/')
-  await page.getByRole('button', { name: 'New here? Create an account' }).click()
-  await page.getByLabel('Email', { exact: true }).fill(`features-${Date.now()}@example.test`)
-  await page.getByLabel('Password', { exact: true }).fill('Test-Password-123!')
-  await page.getByRole('button', { name: 'Create account', exact: true }).click()
-  await expect(page.getByRole('status')).toContainText('Account created')
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Log history' })).toBeVisible()
+  await registerVerified(page, `features-${Date.now()}@example.test`)
 }
 test('edit, normalized tags, combined filters, summary, export and delete confirmation', async ({ page }) => {
   await register(page)

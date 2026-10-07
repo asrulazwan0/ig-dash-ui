@@ -1,21 +1,12 @@
-import { test, expect, type Page } from '@playwright/test'
-const password = 'Test-Password-123!'
-async function register(page: Page, email: string) {
-  await page.getByRole('button', { name: 'New here? Create an account' }).click()
-  await page.getByLabel('Email', { exact: true }).fill(email)
-  await page.getByLabel('Password', { exact: true }).fill(password)
-  await page.getByRole('button', { name: 'Create account', exact: true }).click()
-  await expect(page.getByRole('status')).toContainText('Account created')
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Log history' })).toBeVisible()
-}
+import { test, expect } from '@playwright/test'
+import { password, registerVerified } from './account-helpers'
 test('accounts, private logs, filters, reload, logout and another user', async ({ page }) => {
   await page.goto('/')
   await page.getByLabel('Email', { exact: true }).fill(`missing-${Date.now()}@example.test`)
   await page.getByLabel('Password', { exact: true }).fill(password)
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('Invalid email or password')
-  await register(page, `first-${Date.now()}@example.test`)
+  await registerVerified(page, `first-${Date.now()}@example.test`)
   await expect(page.getByText('No logs here yet.')).toBeVisible()
   await page.getByLabel('Message', { exact: true }).fill('Private warning from first account')
   await page.getByLabel('Level', { exact: true }).selectOption('warning')
@@ -29,13 +20,13 @@ test('accounts, private logs, filters, reload, logout and another user', async (
   await expect(page.getByRole('cell', { name: 'Private warning from first account', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Sign out' }).click()
   await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible()
-  await register(page, `second-${Date.now()}@example.test`)
+  await registerVerified(page, `second-${Date.now()}@example.test`)
   await expect(page.getByText('No logs here yet.')).toBeVisible()
   await expect(page.getByText('Private warning from first account')).toHaveCount(0)
 })
 test('pagination, recoverable errors and expired sessions', async ({ page }) => {
   await page.goto('/')
-  await register(page, `paging-${Date.now()}@example.test`)
+  await registerVerified(page, `paging-${Date.now()}@example.test`)
   await page.evaluate(async () => {
     for (let index = 0; index < 26; index++) {
       const { token } = await fetch('/api/auth/csrf').then(r => r.json())
