@@ -20,7 +20,7 @@ export async function emailLink(request: APIRequestContext, recipient: string, s
 export async function followLink(page: Page, link: string) {
   const base = process.env.BASE_URL || 'http://localhost:5173'
   await page.goto(`${base}/${new URL(link).hash}`)
-  await expect(page).not.toHaveURL(/token=/)
+  await expect.poll(() => page.evaluate(() => !window.location.hash.includes('token='))).toBe(true)
 }
 export async function registerVerified(page: Page, email: string) {
   await page.getByRole('button', { name: 'New here? Create an account' }).click()
