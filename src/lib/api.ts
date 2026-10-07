@@ -1,5 +1,5 @@
 export type Session = { id: string; email: string }
-export type LogRecord = { id: string; message: string; level: 'info' | 'warning' | 'error'; occurredAt: string; createdAt: string }
+export type LogRecord = { id: string; message: string; level: 'info' | 'warning' | 'error'; occurredAt: string; createdAt: string; tags: string[] }
 export type LogPage = { items: LogRecord[]; page: number; pageSize: number; total: number }
 export class ApiError extends Error {
   constructor(public status: number, message: string) { super(message) }
@@ -35,3 +35,19 @@ export async function getSession(signal?: AbortSignal): Promise<Session | null> 
   catch (error) { if (error instanceof ApiError && error.status === 401) return null; throw error }
 }
 export function errorMessage(error: unknown) { return error instanceof Error ? error.message : 'Something went wrong. Try again.' }
+
+export type LogSummary = { total: number; info: number; warning: number; error: number; chartFrom: string; chartTo: string;
+  activity: { date: string; count: number }[]; recent: LogRecord[] }
+export async function downloadLogs(query: string) {
+  const response = await fetch(`/api/logs/export?${query}`, { credentials: 'same-origin', cache: 'no-store' })
+  if (!response.ok) {
+    if (response.status === 401) window.dispatchEvent(new Event('session-expired'))
+    const problem = await response.json().catch(() => ({})) as { title?: string }
+    throw new ApiError(response.status, problem.title || 'Unable to export logs. Try again.')
+  }
+  const url = URL.createObjectURL(await response.blob())
+  const anchor = document.createElement('a')
+  anchor.href = url; anchor.download = 'igdash-logs.csv'
+  document.body.append(anchor); anchor.click(); anchor.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
