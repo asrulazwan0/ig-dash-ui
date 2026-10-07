@@ -26,12 +26,20 @@ jobs:
           path: ig-dash-core
       - name: Configure disposable database
         working-directory: ig-dash-core
-        run: cp .env.example .env
+        run: |
+          cp .env.example .env
+          printf '\nIGDASH_DEMO_PASSWORD=Demo-123!%s\n' "$(openssl rand -hex 16)" >> .env
       - name: Apply migrations
         working-directory: ig-dash-core
         run: |
           docker compose -f compose.workspace.yaml up -d --wait postgres
           docker compose -f compose.workspace.yaml --profile tools run --build --rm migrate
+      - name: Verify demo seeding
+        working-directory: ig-dash-core
+        run: |
+          docker compose -f compose.workspace.yaml --profile tools run --build --rm seed
+          docker compose -f compose.workspace.yaml --profile tools run --rm seed > /tmp/igdash-seed-rerun.log
+          python3 -c "assert 'Demo seed complete: 0 users and 0 logs created.' in open('/tmp/igdash-seed-rerun.log').read()"
       - name: Start application
         working-directory: ig-dash-core
         run: docker compose -f compose.workspace.yaml up --build -d --wait postgres api ui
