@@ -49,7 +49,7 @@ jobs:
           docker compose -f compose.workspace.yaml -f compose.browser.yaml up --build -d --wait postgres api ui
       - name: Verify browser workflows
         working-directory: ig-dash-core
-        run: docker compose -f compose.workspace.yaml --profile tools run --build --rm browser-tests
+        run: docker compose -f compose.workspace.yaml -f compose.browser.yaml --profile tools run --build --rm browser-tests
       - name: Container diagnostics
         if: failure()
         working-directory: ig-dash-core
