@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
+test.use({ viewport: { width: 375, height: 900 } })
 async function register(page: Page) {
   await page.goto('/')
   await page.getByRole('button', { name: 'New here? Create an account' }).click()
@@ -12,6 +13,7 @@ async function register(page: Page) {
 }
 test('edit, normalized tags, combined filters, summary, export and delete confirmation', async ({ page }) => {
   await register(page)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.getByLabel('Message', { exact: true }).fill('Review the release notes')
   await page.getByLabel('Level', { exact: true }).selectOption('warning')
   await page.getByLabel('Tags', { exact: true }).fill(' WORK, learning, work ')
@@ -54,6 +56,7 @@ test('edit, normalized tags, combined filters, summary, export and delete confir
 })
 test('export includes further pages, empty searches and invalid date feedback', async ({ page }) => {
   await register(page)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.evaluate(async () => {
     for (let index = 0; index < 26; index++) {
       const { token } = await fetch('/api/auth/csrf').then(r => r.json())

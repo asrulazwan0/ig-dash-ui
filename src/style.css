@@ -10,6 +10,7 @@ main { max-width: 1320px; margin: auto; padding: 60px 5vw; } h1 { font-size: cla
 
 /* Log exploration and activity */
 .filters-panel, .activity-panel { margin-bottom: 1.5rem; }
+.dashboard-grid > .panel { min-width: 0; }
 .filters-grid { display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 1rem; align-items: end; }
 .filters-grid label { margin: 0; }
 .filters-grid .form-actions { grid-column: 1 / -1; }
